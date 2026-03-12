@@ -1,0 +1,2695 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <title>Controle Financeiro - Mercado & Vendas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --shopping: #ec4899;
+            --info: #06b6d4;
+            --search: #f97316;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #1e1b4b 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .date-display {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .card-title {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .card-value.negative { color: var(--danger); }
+        .card-value.positive { color: var(--success); }
+        .card-value.profit { color: var(--warning); }
+
+        .section {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .icon.shopping { background: var(--shopping); }
+        .icon.calendar { background: var(--info); }
+        .icon.search { background: var(--search); }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--dark);
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn-shopping {
+            background: linear-gradient(135deg, var(--shopping), #db2777);
+            color: white;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info), #0891b2);
+            color: white;
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, var(--search), #ea580c);
+            color: white;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .quick-amounts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .quick-btn {
+            padding: 12px;
+            border: 2px solid var(--border);
+            background: var(--dark);
+            color: var(--text);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .quick-btn:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .camera-btn {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camera-btn input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .expense-list, .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .expense-item, .history-item {
+            background: var(--dark);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .expense-info h4 {
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .expense-info span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .expense-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+
+        .edit-btn { background: var(--warning); color: #000; }
+        .delete-btn { background: var(--danger); color: white; }
+        .add-btn { background: var(--success); color: white; }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border);
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: var(--dark);
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .history-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .profit-display {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1));
+            border: 2px solid var(--warning);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profit-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .profit-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--warning);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 2000;
+        }
+
+        .notification.show { transform: translateX(0); }
+
+        .ocr-preview {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .ingredients-container {
+            display: none;
+            margin-top: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .ingredients-container.show { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ingredients-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background: var(--dark);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .ingredient-item {
+            background: var(--card);
+            padding: 12px 35px 12px 12px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ingredient-item:hover {
+            border-color: var(--shopping);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.2);
+        }
+
+        .ingredient-item.added {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--success);
+        }
+
+        .ingredient-item.added::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--success);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .ingredient-delete-btn {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 22px;
+            height: 22px;
+            border: none;
+            border-radius: 50%;
+            background: var(--danger);
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .ingredient-item:hover .ingredient-delete-btn { opacity: 1; }
+        .ingredient-delete-btn:hover {
+            transform: scale(1.1);
+            background: #dc2626;
+        }
+
+        .manage-fixed-btn {
+            background: var(--border);
+            color: var(--text);
+            border: 2px dashed var(--text-secondary);
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .manage-fixed-btn:hover {
+            border-color: var(--shopping);
+            color: var(--shopping);
+            background: rgba(236, 72, 153, 0.1);
+        }
+
+        .shopping-list {
+            margin-top: 20px;
+            background: var(--dark);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .shopping-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .shopping-list-title {
+            font-size: 1rem;
+            color: var(--shopping);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shopping-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--card);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            animation: slideIn 0.3s ease;
+        }
+
+        .shopping-item.checked {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .shopping-item-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .shopping-item-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .shopping-item.checked .checkbox {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .shopping-item.checked .checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 10px;
+        }
+
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            background: var(--border);
+            color: var(--text);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .qty-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .qty-display {
+            font-weight: bold;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .add-custom-item {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .add-custom-item input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .btn-icon {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 12px;
+            background: var(--shopping);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+        }
+
+        .toggle-icon { transition: transform 0.3s; }
+        .toggle-icon.rotated { transform: rotate(180deg); }
+
+        .clear-all-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .clear-all-btn:hover { background: #dc2626; }
+
+        .quantity-modal .modal-content { max-width: 350px; }
+
+        .quantity-input-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .quantity-input-group button {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 12px;
+            background: var(--primary);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quantity-input-group button:hover {
+            background: var(--secondary);
+            transform: scale(1.1);
+        }
+
+        .quantity-input-group input {
+            width: 100px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 10px;
+        }
+
+        .item-name-display {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            text-transform: capitalize;
+        }
+
+        .fixed-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+            background: var(--dark);
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .fixed-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--card);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .fixed-item-name {
+            text-transform: capitalize;
+            font-size: 0.95rem;
+        }
+
+        .add-fixed-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .add-fixed-form input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .monthly-summary {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(99, 102, 241, 0.2) 100%);
+            border: 2px solid var(--info);
+        }
+
+        .monthly-summary .section-title { color: var(--info); }
+
+        .period-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .period-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .period-input-group label {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+        }
+
+        .period-input-group input {
+            padding: 12px;
+            font-size: 0.9rem;
+        }
+
+        .period-presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .preset-btn {
+            padding: 8px 12px;
+            background: var(--dark);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .preset-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .preset-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .monthly-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: var(--dark);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .stat-value.expense { color: var(--danger); }
+        .stat-value.sale { color: var(--success); }
+        .stat-value.profit { color: var(--warning); }
+
+        .date-range-display {
+            text-align: center;
+            padding: 10px;
+            background: rgba(6, 182, 212, 0.1);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: var(--info);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .transactions-by-period {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .period-item {
+            background: var(--dark);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .period-item-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .period-item-date {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .period-item-type {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        .period-item-type.expense {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .period-item-type.sale {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .period-item-value {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .period-item-value.expense { color: var(--danger); }
+        .period-item-value.sale { color: var(--success); }
+
+        .no-data-message {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .summary-total {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3));
+            border: 2px solid var(--primary);
+            grid-column: 1 / -1;
+        }
+
+        .summary-total .stat-value {
+            font-size: 1.8rem;
+            color: var(--warning);
+        }
+
+        .search-section {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+            border: 2px solid var(--search);
+        }
+
+        .search-section .section-title { color: var(--search); }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-input-wrapper input {
+            flex: 1;
+            padding-left: 45px;
+            font-size: 1rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            pointer-events: none;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .search-filter-btn {
+            padding: 8px 16px;
+            background: var(--dark);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            color: var(--text);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .search-filter-btn:hover {
+            border-color: var(--search);
+            color: var(--search);
+        }
+
+        .search-filter-btn.active {
+            background: var(--search);
+            border-color: var(--search);
+            color: white;
+        }
+
+        .search-results-container {
+            background: var(--dark);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .search-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-stat-card {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .search-stat-card.expenses {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .search-stat-card.sales {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .search-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .search-stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .search-stat-value.expenses { color: var(--danger); }
+        .search-stat-value.sales { color: var(--success); }
+
+        .search-results-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .search-result-item {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            animation: slideIn 0.3s ease;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .search-result-item:hover {
+            border-color: var(--search);
+            transform: translateX(5px);
+        }
+
+        .search-result-info { flex: 1; }
+
+        .search-result-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .search-result-type {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .search-result-type.expense {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .search-result-type.sale {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .search-result-description {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+
+        .search-result-description mark {
+            background: rgba(249, 115, 22, 0.4);
+            color: var(--text);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .search-result-datetime {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .search-result-date, .search-result-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .search-result-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: right;
+            min-width: 100px;
+        }
+
+        .search-result-value.expense { color: var(--danger); }
+        .search-result-value.sale { color: var(--success); }
+
+        .search-divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .search-divider::before,
+        .search-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+            margin: 0 10px;
+        }
+
+        .search-empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .search-empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .clear-search-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            display: none;
+        }
+
+        .clear-search-btn.show { display: block; }
+        .clear-search-btn:hover { color: var(--danger); }
+
+        @media (max-width: 480px) {
+            .container { padding: 15px; }
+            .summary-cards { grid-template-columns: 1fr; }
+            .ingredients-grid { grid-template-columns: 1fr; }
+            .monthly-stats { grid-template-columns: 1fr; }
+            .search-summary { grid-template-columns: 1fr; }
+            .search-result-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .search-result-value {
+                text-align: left;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Controle Financeiro</h1>
+            <div class="date-display" id="currentDate"></div>
+        </header>
+
+        <div class="summary-cards">
+            <div class="card">
+                <div class="card-title">💸 Gastos</div>
+                <div class="card-value negative" id="totalExpenses">R$ 0,00</div>
+            </div>
+            <div class="card">
+                <div class="card-title">💵 Vendas</div>
+                <div class="card-value positive" id="totalSales">R$ 0,00</div>
+            </div>
+        </div>
+
+        <div class="profit-display">
+            <div class="profit-label">Lucro do Dia</div>
+            <div class="profit-value" id="profitValue">R$ 0,00</div>
+        </div>
+
+        <!-- SEÇÃO: PESQUISA AVANÇADA -->
+        <div class="section search-section">
+            <h2 class="section-title">
+                <span class="icon search">🔍</span>
+                Pesquisar Transações
+            </h2>
+
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Digite para pesquisar em gastos e vendas..." oninput="handleSearchInput(this.value)">
+                    <button class="clear-search-btn" id="clearSearchBtn" onclick="clearSearch()">✕</button>
+                </div>
+
+                <div class="search-filters">
+                    <button class="search-filter-btn active" onclick="setSearchFilter('all')" id="filterAll">
+                        📋 Todas
+                    </button>
+                    <button class="search-filter-btn" onclick="setSearchFilter('expense')" id="filterExpense">
+                        💸 Gastos
+                    </button>
+                    <button class="search-filter-btn" onclick="setSearchFilter('sale')" id="filterSale">
+                        💵 Vendas
+                    </button>
+                </div>
+
+                <div class="search-results-container" id="searchResultsContainer" style="display: none;">
+                    <div class="search-summary">
+                        <div class="search-stat-card expenses">
+                            <div class="search-stat-label">Total em Gastos</div>
+                            <div class="search-stat-value expenses" id="searchTotalExpenses">R$ 0,00</div>
+                        </div>
+                        <div class="search-stat-card sales">
+                            <div class="search-stat-label">Total em Vendas</div>
+                            <div class="search-stat-value sales" id="searchTotalSales">R$ 0,00</div>
+                        </div>
+                    </div>
+
+                    <div class="search-divider">
+                        <span id="searchResultsCount">0 resultados encontrados</span>
+                    </div>
+
+                    <div class="search-results-list" id="searchResultsList"></div>
+                </div>
+
+                <div class="search-empty-state" id="searchEmptyState">
+                    <div class="search-empty-state-icon">🔍</div>
+                    <p>Digite acima para pesquisar transações</p>
+                    <p style="font-size: 0.85rem; margin-top: 10px; opacity: 0.7;">
+                        Pesquise por descrição, valor ou data
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO: RESUMO POR PERÍODO -->
+        <div class="section monthly-summary">
+            <h2 class="section-title">
+                <span class="icon calendar">📅</span>
+                Resumo por Período
+            </h2>
+
+            <div class="period-presets">
+                <button class="preset-btn active" onclick="setPeriod('today')">Hoje</button>
+                <button class="preset-btn" onclick="setPeriod('week')">Últimos 7 dias</button>
+                <button class="preset-btn" onclick="setPeriod('month')">Este Mês</button>
+                <button class="preset-btn" onclick="setPeriod('lastMonth')">Mês Passado</button>
+                <button class="preset-btn" onclick="setPeriod('custom')">Personalizado</button>
+            </div>
+
+            <div class="period-selector" id="customDateSelector" style="display: none;">
+                <div class="period-input-group">
+                    <label>Data Inicial</label>
+                    <input type="date" id="startDate" onchange="updatePeriodSummary()">
+                </div>
+                <div class="period-input-group">
+                    <label>Data Final</label>
+                    <input type="date" id="endDate" onchange="updatePeriodSummary()">
+                </div>
+            </div>
+
+            <div class="date-range-display" id="dateRangeDisplay">
+                Período: Hoje
+            </div>
+
+            <div class="monthly-stats">
+                <div class="stat-card">
+                    <div class="stat-label">Total Gastos</div>
+                    <div class="stat-value expense" id="periodExpenses">R$ 0,00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Vendas</div>
+                    <div class="stat-value sale" id="periodSales">R$ 0,00</div>
+                </div>
+                <div class="stat-card summary-total">
+                    <div class="stat-label">Lucro do Período</div>
+                    <div class="stat-value" id="periodProfit">R$ 0,00</div>
+                </div>
+            </div>
+
+            <div class="transactions-by-period" id="periodTransactions">
+                <div class="no-data-message">Nenhuma transação no período selecionado</div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO: LISTA DE COMPRAS -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="icon shopping">🛒</span>
+                Lista de Compras
+            </h2>
+            
+            <button class="btn btn-shopping" onclick="toggleIngredients()">
+                <span>📋 Mostrar Ingredientes</span>
+                <span class="toggle-icon" id="toggleIcon">▼</span>
+            </button>
+
+            <div class="ingredients-container" id="ingredientsContainer">
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 10px; text-align: center;">
+                    Clique nos ingredientes para adicionar à sua lista com quantidade
+                </p>
+                
+                <div class="ingredients-grid" id="ingredientsGrid"></div>
+
+                <div class="manage-fixed-btn" onclick="openManageFixedModal()">
+                    <span>⚙️</span>
+                    <span>Gerenciar Produtos Fixos (Adicionar/Excluir)</span>
+                </div>
+            </div>
+
+            <div class="shopping-list" id="shoppingListContainer">
+                <div class="shopping-list-header">
+                    <div class="shopping-list-title">
+                        🛒 Sua Lista (<span id="itemCount">0</span> itens - <span id="totalUnits">0</span> unidades)
+                    </div>
+                    <button class="clear-all-btn" onclick="clearShoppingList()" id="clearBtn" style="display: none;">
+                        Limpar Tudo
+                    </button>
+                </div>
+                
+                <div id="shoppingList">
+                    <div class="empty-state" style="padding: 20px; font-size: 0.9rem;">
+                        Sua lista está vazia. Clique nos ingredientes acima para adicionar!
+                    </div>
+                </div>
+
+                <div class="add-custom-item">
+                    <input type="text" id="customItemInput" placeholder="Adicionar item personalizado..." onkeypress="handleEnter(event)">
+                    <button class="btn-icon" onclick="openCustomQuantityModal()">+</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO: SCANNER -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="icon">📸</span>
+                Scanner de Nota
+            </h2>
+            <div class="loading" id="ocrLoading">
+                <div class="spinner"></div>
+                <p>Processando imagem...</p>
+            </div>
+            <img id="ocrPreview" class="ocr-preview" alt="Preview">
+            <button class="btn camera-btn">
+                <span>📷 Tirar Foto da Nota</span>
+                <input type="file" accept="image/*" capture="environment" id="cameraInput" onchange="handleCamera(this)">
+            </button>
+            <p style="text-align: center; color: var(--text-secondary); font-size: 0.85rem; margin-top: 10px;">
+                Tire uma foto da nota fiscal para extrair o valor automaticamente
+            </p>
+        </div>
+
+        <!-- SEÇÃO: ADICIONAR GASTO -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="icon">➕</span>
+                Adicionar Gasto
+            </h2>
+            
+            <div class="quick-amounts">
+                <button class="quick-btn" onclick="setAmount(50)">R$ 50</button>
+                <button class="quick-btn" onclick="setAmount(100)">R$ 100</button>
+                <button class="quick-btn" onclick="setAmount(200)">R$ 200</button>
+            </div>
+
+            <div class="input-group">
+                <label>Valor (R$)</label>
+                <input type="number" id="expenseAmount" step="0.01" placeholder="0,00">
+            </div>
+            
+            <div class="input-group">
+                <label>Descrição</label>
+                <input type="text" id="expenseDesc" placeholder="Ex: Mercado, Combustível...">
+            </div>
+
+            <button class="btn btn-primary" onclick="addExpense()">
+                ➕ Adicionar Gasto
+            </button>
+        </div>
+
+        <!-- SEÇÃO: REGISTRAR VENDA -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="icon">💵</span>
+                Registrar Venda
+            </h2>
+            <div class="input-group">
+                <label>Valor da Venda (R$)</label>
+                <input type="number" id="saleAmount" step="0.01" placeholder="0,00">
+            </div>
+            <div class="input-group">
+                <label>Descrição (opcional)</label>
+                <input type="text" id="saleDesc" placeholder="Ex: Produto vendido...">
+            </div>
+            <button class="btn btn-success" onclick="addSale()">
+                💰 Registrar Venda
+            </button>
+        </div>
+
+        <!-- SEÇÃO: GASTOS DE HOJE -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="icon">📋</span>
+                Gastos de Hoje
+            </h2>
+            <div class="expense-list" id="todayExpenses">
+                <div class="empty-state">Nenhum gasto registrado hoje</div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO: HISTÓRICO -->
+        <div class="section">
+            <h2 class="section-title">
+                <span class="icon">📚</span>
+                Histórico
+            </h2>
+            <div class="tabs" id="historyTabs">
+                <button class="tab active" onclick="switchTab('all')">Todos</button>
+                <button class="tab" onclick="switchTab('expenses')">Gastos</button>
+                <button class="tab" onclick="switchTab('sales')">Vendas</button>
+            </div>
+            <div class="history-list" id="historyList">
+                <div class="empty-state">Nenhum histórico disponível</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EDIÇÃO -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Registro</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <input type="hidden" id="editId">
+            <input type="hidden" id="editType">
+            <div class="input-group">
+                <label>Valor (R$)</label>
+                <input type="number" id="editAmount" step="0.01">
+            </div>
+            <div class="input-group">
+                <label>Descrição</label>
+                <input type="text" id="editDesc">
+            </div>
+            <button class="btn btn-primary" onclick="saveEdit()">Salvar Alterações</button>
+        </div>
+    </div>
+
+    <!-- MODAL: QUANTIDADE -->
+    <div class="modal quantity-modal" id="quantityModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Definir Quantidade</h3>
+                <button class="close-btn" onclick="closeQuantityModal()">&times;</button>
+            </div>
+            <div class="item-name-display" id="quantityItemName">Item</div>
+            <input type="hidden" id="quantityItemId">
+            <input type="hidden" id="quantityItemCustom">
+            
+            <div class="quantity-input-group">
+                <button onclick="changeModalQuantity(-1)">−</button>
+                <input type="number" id="modalQuantityInput" value="1" min="1" max="99" readonly>
+                <button onclick="changeModalQuantity(1)">+</button>
+            </div>
+            
+            <button class="btn btn-shopping" onclick="confirmQuantity()">
+                Adicionar à Lista
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: GERENCIAR PRODUTOS FIXOS -->
+    <div class="modal" id="manageFixedModal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3>⚙️ Gerenciar Produtos Fixos</h3>
+                <button class="close-btn" onclick="closeManageFixedModal()">&times;</button>
+            </div>
+            
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 15px;">
+                Adicione novos produtos fixos ou remova os existentes. Estes produtos aparecerão sempre na lista de ingredientes.
+            </p>
+
+            <div class="fixed-list" id="fixedList"></div>
+
+            <div class="add-fixed-form">
+                <input type="text" id="newFixedItemInput" placeholder="Nome do novo produto..." onkeypress="handleFixedEnter(event)">
+                <button class="btn btn-success" onclick="addNewFixedItem()" style="width: auto; padding: 12px 20px;">
+                    Adicionar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // ==========================================
+        // ESTADO DA APLICAÇÃO
+        // ==========================================
+        let transactions = JSON.parse(localStorage.getItem('financial_transactions')) || [];
+        let currentFilter = 'all';
+        let currentPeriod = 'today';
+        let searchFilter = 'all';
+        let searchDebounceTimer = null;
+        
+        let predefinedIngredients = JSON.parse(localStorage.getItem('fixed_ingredients')) || [
+            "calabresa", "presunto", "mussarela", "ovo", "cebola", "farinha", "parmesão", 
+            "gorgonzola", "peito peru", "bacon", "fubá", "frango", "tomate cereja", 
+            "tomate normal", "abacaxi", "fermento", "salsinha", "cebolinha", "molho", 
+            "atum", "alho frito", "chocolate", "morango", "manjericão", "banana", 
+            "saco para lixo", "detergente", "saco para massa", "catupiry", "cream cheese", 
+            "cheddar", "azeite", "azeitonas"
+        ];
+        
+        let shoppingList = JSON.parse(localStorage.getItem('shopping_list_v2')) || [];
+
+        // ==========================================
+        // INICIALIZAÇÃO
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDate();
+            updateUI();
+            loadHistory();
+            renderIngredients();
+            renderShoppingList();
+            initializePeriodDates();
+            updatePeriodSummary();
+            initializeSearch();
+            
+            // Event listeners dos modais
+            setupModalListeners();
+        });
+
+        function setupModalListeners() {
+            document.getElementById('editModal').addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+
+            document.getElementById('quantityModal').addEventListener('click', function(e) {
+                if (e.target === this) closeQuantityModal();
+            });
+
+            document.getElementById('manageFixedModal').addEventListener('click', function(e) {
+                if (e.target === this) closeManageFixedModal();
+            });
+        }
+
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('pt-BR', options);
+        }
+
+        // ==========================================
+        // FUNÇÕES DE DATA
+        // ==========================================
+        function parseLocalDate(dateString) {
+            if (!dateString) return new Date();
+            const [year, month, day] = dateString.split('-').map(Number);
+            return new Date(year, month - 1, day, 0, 0, 0, 0);
+        }
+
+        function parseISODate(isoString) {
+            return new Date(isoString);
+        }
+
+        function getTodayLocal() {
+            const now = new Date();
+            return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+        }
+
+        // ==========================================
+        // SISTEMA DE PESQUISA AVANÇADA - CORRIGIDO
+        // ==========================================
+
+        /**
+         * Normaliza texto removendo acentos e caracteres especiais
+         */
+        function normalizeText(text) {
+            if (!text) return '';
+            return text.toString()
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^\w\s]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        /**
+         * Formata valor para pesquisa
+         */
+        function normalizeValue(value) {
+            if (!value) return '';
+            return value.toString()
+                .replace(/[R$\s.]/g, '')
+                .replace(',', '.');
+        }
+
+        /**
+         * Verifica se a transação corresponde à query
+         */
+        function transactionMatchesQuery(transaction, query) {
+            const normalizedQuery = normalizeText(query);
+            const normalizedQueryValue = normalizeValue(query);
+            
+            // 1. Pesquisa na descrição
+            const descNormalized = normalizeText(transaction.description);
+            if (descNormalized.includes(normalizedQuery)) return true;
+            
+            // 2. Pesquisa no valor
+            if (transaction.amount.toString().includes(query)) return true;
+            const amountFormatted = formatCurrency(transaction.amount);
+            if (normalizeValue(amountFormatted).includes(normalizedQueryValue)) return true;
+            if (amountFormatted.replace(/[R$\s]/g, '').includes(query)) return true;
+            
+            // 3. Pesquisa na data
+            const date = new Date(transaction.date);
+            const dateStr = transaction.dateStr;
+            const day = date.getDate().toString();
+            const month = (date.getMonth() + 1).toString();
+            const year = date.getFullYear().toString();
+            const monthName = date.toLocaleDateString('pt-BR', { month: 'long' });
+            const monthNameNormalized = normalizeText(monthName);
+            
+            if (dateStr.includes(query)) return true;
+            if (day === query || day.padStart(2, '0') === query) return true;
+            if (month === query || month.padStart(2, '0') === query) return true;
+            if (year.includes(query)) return true;
+            if (monthNameNormalized.includes(normalizedQuery)) return true;
+            
+            // 4. Pesquisa no tipo
+            const typeTerms = {
+                'expense': ['gasto', 'despesa', 'saida', 'pagamento', 'expense'],
+                'sale': ['venda', 'receita', 'entrada', 'sale', 'vendi']
+            };
+            
+            const queryLower = query.toLowerCase();
+            if (typeTerms[transaction.type].some(term => 
+                term.includes(queryLower) || queryLower.includes(term)
+            )) {
+                return true;
+            }
+            
+            // 5. Pesquisa por ID
+            if (transaction.id.toString().includes(query)) return true;
+            
+            return false;
+        }
+
+        function initializeSearch() {
+            document.getElementById('searchEmptyState').style.display = 'block';
+            document.getElementById('searchResultsContainer').style.display = 'none';
+        }
+
+        function handleSearchInput(value) {
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (value.length > 0) {
+                clearBtn.classList.add('show');
+            } else {
+                clearBtn.classList.remove('show');
+            }
+
+            clearTimeout(searchDebounceTimer);
+            
+            if (value.trim() === '') {
+                clearSearch();
+                return;
+            }
+
+            searchDebounceTimer = setTimeout(() => {
+                performSearch(value);
+            }, 300);
+        }
+
+        function performSearch(query) {
+            if (!query || query.trim() === '') {
+                clearSearch();
+                return;
+            }
+            
+            const queryTrimmed = query.trim();
+            
+            // Obter datas do período
+            const startDateStr = document.getElementById('startDate').value;
+            const endDateStr = document.getElementById('endDate').value;
+            
+            const startDate = parseLocalDate(startDateStr);
+            const endDate = parseLocalDate(endDateStr);
+            const endDateInclusive = new Date(endDate.getTime() + (24 * 60 * 60 * 1000) - 1);
+            
+            // Filtrar transações
+            let filteredTransactions = transactions.filter(t => {
+                // Verificar período
+                const tDate = parseISODate(t.date);
+                const inPeriod = tDate >= startDate && tDate <= endDateInclusive;
+                
+                // Verificar pesquisa
+                const matchesSearch = transactionMatchesQuery(t, queryTrimmed);
+                
+                // Verificar filtro de tipo
+                const typeMatch = searchFilter === 'all' || t.type === searchFilter;
+                
+                return inPeriod && matchesSearch && typeMatch;
+            });
+            
+            // Ordenar por data
+            filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            renderSearchResults(filteredTransactions, queryTrimmed);
+        }
+
+        function renderSearchResults(results, query) {
+            const container = document.getElementById('searchResultsContainer');
+            const emptyState = document.getElementById('searchEmptyState');
+            const resultsList = document.getElementById('searchResultsList');
+            const countElement = document.getElementById('searchResultsCount');
+
+            if (results.length === 0) {
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+                emptyState.innerHTML = `
+                    <div class="search-empty-state-icon">😕</div>
+                    <p>Nenhum resultado encontrado para "<strong>${escapeHtml(query)}</strong>"</p>
+                    <div style="margin-top: 15px; font-size: 0.8rem; opacity: 0.8; text-align: left; padding: 0 20px;">
+                        <p style="margin-bottom: 8px;"><strong>Dicas de pesquisa:</strong></p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>• Use palavras parciais: "mer" encontra "mercado"</li>
+                            <li>• Pesquise por valor: "50" ou "R$ 50,00"</li>
+                            <li>• Pesquise por data: "25/12" ou "dezembro"</li>
+                            <li>• Pesquise por tipo: "gasto" ou "venda"</li>
+                            <li>• Acentos são opcionais: "cafe" = "café"</li>
+                        </ul>
+                    </div>
+                `;
+                return;
+            }
+
+            container.style.display = 'block';
+            emptyState.style.display = 'none';
+
+            // Calcular totais
+            const expenses = results.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const sales = results.filter(t => t.type === 'sale').reduce((sum, t) => sum + t.amount, 0);
+
+            document.getElementById('searchTotalExpenses').textContent = formatCurrency(expenses);
+            document.getElementById('searchTotalSales').textContent = formatCurrency(sales);
+            
+            const resultText = results.length === 1 ? 'resultado encontrado' : 'resultados encontrados';
+            countElement.innerHTML = `<strong>${results.length}</strong> ${resultText}`;
+
+            // Renderizar resultados
+            resultsList.innerHTML = results.map(t => {
+                const date = new Date(t.date);
+                const dateStr = date.toLocaleDateString('pt-BR');
+                const timeStr = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const monthStr = date.toLocaleDateString('pt-BR', { month: 'long' });
+                const yearStr = date.getFullYear();
+
+                const highlightedDesc = smartHighlight(t.description, query);
+                const highlightedValue = smartHighlight(formatCurrency(t.amount), query);
+                const highlightedDate = smartHighlight(dateStr, query);
+                const highlightedMonth = smartHighlight(monthStr, query);
+
+                return `
+                    <div class="search-result-item" onclick="openEditModal(${t.id})" title="Clique para editar">
+                        <div class="search-result-info">
+                            <div class="search-result-header">
+                                <span class="search-result-type ${t.type}">
+                                    ${t.type === 'expense' ? '💸 Gasto' : '💵 Venda'}
+                                </span>
+                                <span style="font-size: 0.75rem; color: var(--text-secondary);">
+                                    ID: ${t.id}
+                                </span>
+                            </div>
+                            <div class="search-result-description">${highlightedDesc}</div>
+                            <div class="search-result-datetime">
+                                <span class="search-result-date" title="Data">
+                                    📅 ${highlightedDate}
+                                </span>
+                                <span class="search-result-time" title="Hora">
+                                    🕐 ${timeStr}
+                                </span>
+                                <span style="opacity: 0.8;" title="Mês e Ano">
+                                    📆 ${highlightedMonth} ${yearStr}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="search-result-value ${t.type}">
+                            ${t.type === 'expense' ? '-' : '+'} ${highlightedValue}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function smartHighlight(text, query) {
+            if (!query || !text) return text;
+            
+            const normalizedQuery = normalizeText(query);
+            const normalizedText = normalizeText(text);
+            
+            if (!normalizedQuery || !normalizedText.includes(normalizedQuery)) {
+                return text;
+            }
+            
+            // Usar aproximação para highlight
+            return approximateHighlight(text, query);
+        }
+
+        function approximateHighlight(text, query) {
+            const normalizedText = normalizeText(text);
+            const normalizedQuery = normalizeText(query);
+            
+            let result = '';
+            let textIndex = 0;
+            let queryIndex = 0;
+            let inMatch = false;
+            let matchStart = -1;
+            
+            while (textIndex < text.length) {
+                const textChar = text[textIndex].toLowerCase();
+                const queryChar = query[queryIndex]?.toLowerCase();
+                
+                const normTextChar = normalizeText(text[textIndex]);
+                const normQueryChar = queryIndex < query.length ? normalizeText(query[queryIndex]) : '';
+                
+                const isMatch = queryIndex < query.length && 
+                    (normTextChar === normQueryChar || textChar === queryChar);
+                
+                if (isMatch) {
+                    if (!inMatch) {
+                        // Início do match
+                        if (matchStart !== -1) {
+                            // Fechar match anterior
+                            result += '</mark>';
+                        }
+                        matchStart = textIndex;
+                        result += '<mark>';
+                        inMatch = true;
+                    }
+                    result += text[textIndex];
+                    queryIndex++;
+                } else {
+                    if (inMatch) {
+                        // Fim do match
+                        result += '</mark>';
+                        inMatch = false;
+                        matchStart = -1;
+                        // Reset query se não for match contínuo
+                        queryIndex = 0;
+                    }
+                    result += text[textIndex];
+                }
+                
+                textIndex++;
+            }
+            
+            if (inMatch) {
+                result += '</mark>';
+            }
+            
+            return result;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function setSearchFilter(filter) {
+            searchFilter = filter;
+            
+            document.querySelectorAll('.search-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (filter === 'all') document.getElementById('filterAll').classList.add('active');
+            if (filter === 'expense') document.getElementById('filterExpense').classList.add('active');
+            if (filter === 'sale') document.getElementById('filterSale').classList.add('active');
+            
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput.value.trim() !== '') {
+                performSearch(searchInput.value);
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearchBtn').classList.remove('show');
+            document.getElementById('searchResultsContainer').style.display = 'none';
+            document.getElementById('searchEmptyState').style.display = 'block';
+            document.getElementById('searchEmptyState').innerHTML = `
+                <div class="search-empty-state-icon">🔍</div>
+                <p>Digite acima para pesquisar transações</p>
+                <div style="margin-top: 15px; font-size: 0.8rem; opacity: 0.8;">
+                    <p>Pesquise por: descrição, valor, data, mês ou tipo</p>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // RESUMO POR PERÍODO
+        // ==========================================
+        function initializePeriodDates() {
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            
+            document.getElementById('startDate').value = todayStr;
+            document.getElementById('endDate').value = todayStr;
+        }
+
+        function setPeriod(period) {
+            currentPeriod = period;
+            
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const today = getTodayLocal();
+            let startDate, endDate;
+            
+            switch(period) {
+                case 'today':
+                    startDate = today;
+                    endDate = today;
+                    break;
+                case 'week':
+                    startDate = new Date(today.getTime() - (7 * 24 * 60 * 60 * 1000));
+                    endDate = today;
+                    break;
+                case 'month':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = today;
+                    break;
+                case 'lastMonth':
+                    startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth(), 0);
+                    break;
+                case 'custom':
+                    document.getElementById('customDateSelector').style.display = 'grid';
+                    updatePeriodSummary();
+                    return;
+            }
+            
+            if (period !== 'custom') {
+                document.getElementById('customDateSelector').style.display = 'none';
+            }
+            
+            const startStr = startDate.toISOString().split('T')[0];
+            const endStr = endDate.toISOString().split('T')[0];
+            
+            document.getElementById('startDate').value = startStr;
+            document.getElementById('endDate').value = endStr;
+            
+            updatePeriodSummary();
+            
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput.value.trim() !== '') {
+                performSearch(searchInput.value);
+            }
+        }
+
+        function updatePeriodSummary() {
+            const startDate = parseLocalDate(document.getElementById('startDate').value);
+            const endDate = parseLocalDate(document.getElementById('endDate').value);
+            
+            const periodTransactions = transactions.filter(t => {
+                const tDate = parseISODate(t.date);
+                const tDateNormalized = new Date(tDate.getFullYear(), tDate.getMonth(), tDate.getDate());
+                return tDateNormalized >= startDate && tDateNormalized <= endDate;
+            });
+            
+            const expenses = periodTransactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const sales = periodTransactions
+                .filter(t => t.type === 'sale')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            const profit = sales - expenses;
+            
+            document.getElementById('periodExpenses').textContent = formatCurrency(expenses);
+            document.getElementById('periodSales').textContent = formatCurrency(sales);
+            
+            const profitElement = document.getElementById('periodProfit');
+            profitElement.textContent = formatCurrency(profit);
+            
+            if (profit > 0) {
+                profitElement.style.color = 'var(--success)';
+            } else if (profit < 0) {
+                profitElement.style.color = 'var(--danger)';
+            } else {
+                profitElement.style.color = 'var(--warning)';
+            }
+            
+            const startStr = startDate.toLocaleDateString('pt-BR');
+            const endStr = endDate.toLocaleDateString('pt-BR');
+            const periodText = startStr === endStr ? startStr : `${startStr} até ${endStr}`;
+            document.getElementById('dateRangeDisplay').textContent = `Período: ${periodText}`;
+            
+            renderPeriodTransactions(periodTransactions);
+            
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput.value.trim() !== '') {
+                performSearch(searchInput.value);
+            }
+        }
+
+        function renderPeriodTransactions(periodTransactions) {
+            const container = document.getElementById('periodTransactions');
+            
+            if (periodTransactions.length === 0) {
+                container.innerHTML = '<div class="no-data-message">Nenhuma transação no período selecionado</div>';
+                return;
+            }
+            
+            const sorted = periodTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            container.innerHTML = sorted.map(t => {
+                const date = new Date(t.date);
+                const dateStr = date.toLocaleDateString('pt-BR');
+                const timeStr = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                
+                return `
+                    <div class="period-item">
+                        <div class="period-item-info">
+                            <strong>${t.description}</strong>
+                            <span class="period-item-date">${dateStr} às ${timeStr}</span>
+                            <span class="period-item-type ${t.type}">
+                                ${t.type === 'expense' ? '💸 Gasto' : '💵 Venda'}
+                            </span>
+                        </div>
+                        <div class="period-item-value ${t.type}">
+                            ${t.type === 'expense' ? '-' : '+'} ${formatCurrency(t.amount)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==========================================
+        // TRANSAÇÕES (GASTOS E VENDAS)
+        // ==========================================
+        function setAmount(value) {
+            document.getElementById('expenseAmount').value = value;
+            showNotification(`R$ ${value},00 selecionado`);
+        }
+
+        function handleCamera(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const preview = document.getElementById('ocrPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    
+                    document.getElementById('ocrLoading').style.display = 'block';
+                    
+                    setTimeout(() => {
+                        const simulatedValue = (Math.random() * 200 + 50).toFixed(2);
+                        document.getElementById('expenseAmount').value = simulatedValue;
+                        document.getElementById('expenseDesc').value = 'Compra no mercado';
+                        document.getElementById('ocrLoading').style.display = 'none';
+                        showNotification(`Valor detectado: R$ ${simulatedValue.replace('.', ',')}`);
+                    }, 2000);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addExpense() {
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const desc = document.getElementById('expenseDesc').value || 'Gasto não especificado';
+
+            if (!amount || amount <= 0) {
+                showNotification('Por favor, insira um valor válido', 'error');
+                return;
+            }
+
+            const transaction = {
+                id: Date.now(),
+                type: 'expense',
+                amount: amount,
+                description: desc,
+                date: new Date().toISOString(),
+                dateStr: new Date().toLocaleDateString('pt-BR')
+            };
+
+            transactions.push(transaction);
+            saveData();
+            
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('expenseDesc').value = '';
+            document.getElementById('ocrPreview').style.display = 'none';
+            
+            updateUI();
+            updatePeriodSummary();
+            showNotification('Gasto adicionado com sucesso!');
+        }
+
+        function addSale() {
+            const amount = parseFloat(document.getElementById('saleAmount').value);
+            const desc = document.getElementById('saleDesc').value || 'Venda';
+
+            if (!amount || amount <= 0) {
+                showNotification('Por favor, insira um valor válido', 'error');
+                return;
+            }
+
+            const transaction = {
+                id: Date.now(),
+                type: 'sale',
+                amount: amount,
+                description: desc,
+                date: new Date().toISOString(),
+                dateStr: new Date().toLocaleDateString('pt-BR')
+            };
+
+            transactions.push(transaction);
+            saveData();
+            
+            document.getElementById('saleAmount').value = '';
+            document.getElementById('saleDesc').value = '';
+            
+            updateUI();
+            updatePeriodSummary();
+            showNotification('Venda registrada com sucesso!');
+        }
+
+        function saveData() {
+            localStorage.setItem('financial_transactions', JSON.stringify(transactions));
+        }
+
+        function updateUI() {
+            const today = new Date().toLocaleDateString('pt-BR');
+            const todayTransactions = transactions.filter(t => t.dateStr === today);
+            
+            const expenses = todayTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const sales = todayTransactions.filter(t => t.type === 'sale').reduce((sum, t) => sum + t.amount, 0);
+            const profit = sales - expenses;
+
+            document.getElementById('totalExpenses').textContent = formatCurrency(expenses);
+            document.getElementById('totalSales').textContent = formatCurrency(sales);
+            document.getElementById('profitValue').textContent = formatCurrency(profit);
+            
+            const profitElement = document.getElementById('profitValue');
+            if (profit > 0) {
+                profitElement.style.color = 'var(--success)';
+            } else if (profit < 0) {
+                profitElement.style.color = 'var(--danger)';
+            } else {
+                profitElement.style.color = 'var(--warning)';
+            }
+
+            renderTodayExpenses(todayTransactions);
+        }
+
+        function renderTodayExpenses(todayTransactions) {
+            const container = document.getElementById('todayExpenses');
+            const expenses = todayTransactions.filter(t => t.type === 'expense');
+            
+            if (expenses.length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum gasto registrado hoje</div>';
+                return;
+            }
+
+            container.innerHTML = expenses.map(exp => `
+                <div class="expense-item">
+                    <div class="expense-info">
+                        <h4>${exp.description}</h4>
+                        <span>${new Date(exp.date).toLocaleTimeString('pt-BR')}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <strong style="color: var(--danger);">${formatCurrency(exp.amount)}</strong>
+                        <div class="expense-actions">
+                            <button class="btn-small edit-btn" onclick="openEditModal(${exp.id})">✏️</button>
+                            <button class="btn-small delete-btn" onclick="deleteTransaction(${exp.id})">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadHistory() {
+            const container = document.getElementById('historyList');
+            let filtered = transactions;
+            
+            if (currentFilter === 'expenses') filtered = transactions.filter(t => t.type === 'expense');
+            if (currentFilter === 'sales') filtered = transactions.filter(t => t.type === 'sale');
+
+            const grouped = filtered.reduce((acc, t) => {
+                if (!acc[t.dateStr]) acc[t.dateStr] = [];
+                acc[t.dateStr].push(t);
+                return acc;
+            }, {});
+
+            if (Object.keys(grouped).length === 0) {
+                container.innerHTML = '<div class="empty-state">Nenhum histórico disponível</div>';
+                return;
+            }
+
+            container.innerHTML = Object.entries(grouped).sort((a, b) => {
+                return new Date(b[0].split('/').reverse().join('-')) - new Date(a[0].split('/').reverse().join('-'));
+            }).map(([date, items]) => {
+                const dayExpenses = items.filter(i => i.type === 'expense').reduce((s, i) => s + i.amount, 0);
+                const daySales = items.filter(i => i.type === 'sale').reduce((s, i) => s + i.amount, 0);
+                const dayProfit = daySales - dayExpenses;
+
+                return `
+                    <div class="history-item" style="flex-direction: column; align-items: stretch;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <strong>${date}</strong>
+                            <span style="color: ${dayProfit >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                                Lucro: ${formatCurrency(dayProfit)}
+                            </span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                            💸 ${formatCurrency(dayExpenses)} | 💵 ${formatCurrency(daySales)}
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.85rem;">
+                            ${items.map(item => `
+                                <div style="display: flex; justify-content: space-between; padding: 5px 0; border-top: 1px solid var(--border);">
+                                    <span>${item.type === 'expense' ? '💸' : '💵'} ${item.description}</span>
+                                    <span style="color: ${item.type === 'expense' ? 'var(--danger)' : 'var(--success)'}">
+                                        ${formatCurrency(item.amount)}
+                                        <button class="btn-small edit-btn" onclick="openEditModal(${item.id})" style="margin-left: 10px;">✏️</button>
+                                        <button class="btn-small delete-btn" onclick="deleteTransaction(${item.id})">🗑️</button>
+                                    </span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchTab(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            loadHistory();
+        }
+
+        function openEditModal(id) {
+            const transaction = transactions.find(t => t.id === id);
+            if (!transaction) return;
+
+            document.getElementById('editId').value = id;
+            document.getElementById('editType').value = transaction.type;
+            document.getElementById('editAmount').value = transaction.amount;
+            document.getElementById('editDesc').value = transaction.description;
+            
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        function saveEdit() {
+            const id = parseInt(document.getElementById('editId').value);
+            const amount = parseFloat(document.getElementById('editAmount').value);
+            const desc = document.getElementById('editDesc').value;
+
+            if (!amount || amount <= 0) {
+                showNotification('Por favor, insira um valor válido', 'error');
+                return;
+            }
+
+            const index = transactions.findIndex(t => t.id === id);
+            if (index !== -1) {
+                transactions[index].amount = amount;
+                transactions[index].description = desc;
+                saveData();
+                updateUI();
+                updatePeriodSummary();
+                loadHistory();
+                closeModal();
+                showNotification('Registro atualizado com sucesso!');
+                
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput.value.trim() !== '') {
+                    performSearch(searchInput.value);
+                }
+            }
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('Tem certeza que deseja excluir este registro?')) {
+                transactions = transactions.filter(t => t.id !== id);
+                saveData();
+                updateUI();
+                updatePeriodSummary();
+                loadHistory();
+                showNotification('Registro excluído com sucesso!');
+                
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput.value.trim() !== '') {
+                    performSearch(searchInput.value);
+                }
+            }
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        function showNotification(message, type = 'success') {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.style.background = type === 'error' ? 'var(--danger)' : 'var(--success)';
+            notif.classList.add('show');
+            
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 3000);
+        }
+
+        // ==========================================
+        // LISTA DE COMPRAS
+        // ==========================================
+        function toggleIngredients() {
+            const container = document.getElementById('ingredientsContainer');
+            const icon = document.getElementById('toggleIcon');
+            const btn = event.target.closest('.btn');
+            const btnText = btn.querySelector('span:first-child');
+            
+            if (container.classList.contains('show')) {
+                container.classList.remove('show');
+                icon.classList.remove('rotated');
+                btnText.textContent = '📋 Mostrar Ingredientes';
+            } else {
+                container.classList.add('show');
+                icon.classList.add('rotated');
+                btnText.textContent = '📋 Ocultar Ingredientes';
+            }
+        }
+
+        function renderIngredients() {
+            const grid = document.getElementById('ingredientsGrid');
+            grid.innerHTML = predefinedIngredients.map(ing => {
+                const isAdded = shoppingList.some(item => item.name === ing);
+                return `
+                    <div class="ingredient-item ${isAdded ? 'added' : ''}" 
+                         onclick="openQuantityModal('${ing}', false)"
+                         data-ingredient="${ing}">
+                        <button class="ingredient-delete-btn" onclick="event.stopPropagation(); deleteFixedIngredient('${ing}')">×</button>
+                        ${ing.charAt(0).toUpperCase() + ing.slice(1)}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openManageFixedModal() {
+            renderFixedList();
+            document.getElementById('manageFixedModal').classList.add('active');
+        }
+
+        function closeManageFixedModal() {
+            document.getElementById('manageFixedModal').classList.remove('active');
+        }
+
+        function renderFixedList() {
+            const container = document.getElementById('fixedList');
+            
+            if (predefinedIngredients.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding: 20px;">Nenhum produto fixo cadastrado</div>';
+                return;
+            }
+
+            container.innerHTML = predefinedIngredients.map(ing => `
+                <div class="fixed-item">
+                    <span class="fixed-item-name">${ing.charAt(0).toUpperCase() + ing.slice(1)}</span>
+                    <button class="btn-small delete-btn" onclick="deleteFixedIngredientFromModal('${ing}')">🗑️ Excluir</button>
+                </div>
+            `).join('');
+        }
+
+        function addNewFixedItem() {
+            const input = document.getElementById('newFixedItemInput');
+            const value = input.value.trim().toLowerCase();
+            
+            if (!value) {
+                showNotification('Digite um nome para o produto', 'error');
+                return;
+            }
+            
+            if (predefinedIngredients.includes(value)) {
+                showNotification('Este produto já existe na lista', 'error');
+                return;
+            }
+            
+            predefinedIngredients.push(value);
+            predefinedIngredients.sort();
+            saveFixedIngredients();
+            
+            input.value = '';
+            renderFixedList();
+            renderIngredients();
+            showNotification(`"${value}" adicionado aos produtos fixos!`);
+        }
+
+        function deleteFixedIngredient(ingName) {
+            if (confirm(`Tem certeza que deseja excluir "${ingName}" dos produtos fixos?`)) {
+                predefinedIngredients = predefinedIngredients.filter(ing => ing !== ingName);
+                saveFixedIngredients();
+                renderIngredients();
+                showNotification(`"${ingName}" removido dos produtos fixos`);
+            }
+        }
+
+        function deleteFixedIngredientFromModal(ingName) {
+            if (confirm(`Tem certeza que deseja excluir "${ingName}"?`)) {
+                predefinedIngredients = predefinedIngredients.filter(ing => ing !== ingName);
+                saveFixedIngredients();
+                renderFixedList();
+                renderIngredients();
+                showNotification(`"${ingName}" removido dos produtos fixos`);
+            }
+        }
+
+        function handleFixedEnter(event) {
+            if (event.key === 'Enter') {
+                addNewFixedItem();
+            }
+        }
+
+        function saveFixedIngredients() {
+            localStorage.setItem('fixed_ingredients', JSON.stringify(predefinedIngredients));
+        }
+
+        function openQuantityModal(name, isCustom) {
+            const existingItem = shoppingList.find(item => item.name === name);
+            
+            document.getElementById('quantityItemName').textContent = name;
+            document.getElementById('quantityItemId').value = name;
+            document.getElementById('quantityItemCustom').value = isCustom;
+            document.getElementById('modalQuantityInput').value = existingItem ? existingItem.quantity : 1;
+            
+            document.getElementById('quantityModal').classList.add('active');
+        }
+
+        function openCustomQuantityModal() {
+            const input = document.getElementById('customItemInput');
+            const value = input.value.trim();
+            
+            if (!value) {
+                showNotification('Digite um item para adicionar', 'error');
+                return;
+            }
+            
+            openQuantityModal(value, true);
+        }
+
+        function closeQuantityModal() {
+            document.getElementById('quantityModal').classList.remove('active');
+        }
+
+        function changeModalQuantity(delta) {
+            const input = document.getElementById('modalQuantityInput');
+            let value = parseInt(input.value) || 1;
+            value += delta;
+            if (value < 1) value = 1;
+            if (value > 99) value = 99;
+            input.value = value;
+        }
+
+        function confirmQuantity() {
+            const name = document.getElementById('quantityItemId').value;
+            const isCustom = document.getElementById('quantityItemCustom').value === 'true';
+            const quantity = parseInt(document.getElementById('modalQuantityInput').value) || 1;
+            
+            const existingIndex = shoppingList.findIndex(item => item.name === name);
+            
+            if (existingIndex !== -1) {
+                shoppingList[existingIndex].quantity = quantity;
+                showNotification(`${name} atualizado: ${quantity} unidade(s)`);
+            } else {
+                const newItem = {
+                    id: Date.now(),
+                    name: name,
+                    quantity: quantity,
+                    checked: false,
+                    custom: isCustom
+                };
+                shoppingList.push(newItem);
+                showNotification(`${name} (${quantity}x) adicionado à lista!`);
+            }
+            
+            saveShoppingList();
+            renderShoppingList();
+            renderIngredients();
+            closeQuantityModal();
+            
+            if (isCustom) {
+                document.getElementById('customItemInput').value = '';
+            }
+        }
+
+        function updateQuantity(id, delta) {
+            const item = shoppingList.find(item => item.id === id);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity < 1) item.quantity = 1;
+                saveShoppingList();
+                renderShoppingList();
+            }
+        }
+
+        function toggleCheckItem(id) {
+            const item = shoppingList.find(item => item.id === id);
+            if (item) {
+                item.checked = !item.checked;
+                saveShoppingList();
+                renderShoppingList();
+            }
+        }
+
+        function removeFromShoppingList(id) {
+            shoppingList = shoppingList.filter(item => item.id !== id);
+            saveShoppingList();
+            renderShoppingList();
+            renderIngredients();
+            showNotification('Item removido');
+        }
+
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                openCustomQuantityModal();
+            }
+        }
+
+        function clearShoppingList() {
+            if (confirm('Tem certeza que deseja limpar toda a lista de compras?')) {
+                shoppingList = [];
+                saveShoppingList();
+                renderShoppingList();
+                renderIngredients();
+                showNotification('Lista de compras limpa!');
+            }
+        }
+
+        function saveShoppingList() {
+            localStorage.setItem('shopping_list_v2', JSON.stringify(shoppingList));
+        }
+
+        function renderShoppingList() {
+            const container = document.getElementById('shoppingList');
+            const countElement = document.getElementById('itemCount');
+            const totalUnitsElement = document.getElementById('totalUnits');
+            const clearBtn = document.getElementById('clearBtn');
+            
+            const totalItems = shoppingList.length;
+            const totalUnits = shoppingList.reduce((sum, item) => sum + item.quantity, 0);
+            
+            countElement.textContent = totalItems;
+            totalUnitsElement.textContent = totalUnits;
+            
+            if (shoppingList.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding: 20px; font-size: 0.9rem;">Sua lista está vazia. Clique nos ingredientes acima para adicionar!</div>';
+                clearBtn.style.display = 'none';
+                return;
+            }
+            
+            clearBtn.style.display = 'block';
+            
+            const sortedList = [...shoppingList].sort((a, b) => a.checked - b.checked);
+            
+            container.innerHTML = sortedList.map(item => `
+                <div class="shopping-item ${item.checked ? 'checked' : ''}">
+                    <div class="shopping-item-content">
+                        <div class="shopping-item-text" onclick="toggleCheckItem(${item.id})">
+                            <div class="checkbox"></div>
+                            <span>${item.name}</span>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="qty-btn" onclick="event.stopPropagation(); updateQuantity(${item.id}, -1)">−</button>
+                            <span class="qty-display">${item.quantity}</span>
+                            <button class="qty-btn" onclick="event.stopPropagation(); updateQuantity(${item.id}, 1)">+</button>
+                        </div>
+                    </div>
+                    <button class="btn-small delete-btn" onclick="removeFromShoppingList(${item.id})">🗑️</button>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
